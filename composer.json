@@ -15,10 +15,13 @@
     "symfony/http-kernel": "^6.4",
     "symfony/framework-bundle": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
+    "symfony/event-dispatcher-contracts": "^2.5 | ^3",
     "tourze/enum-extra": "~0.0.5",
     "tourze/easy-admin-attribute": "0.1.*",
     "tourze/doctrine-track-bundle": "0.1.*",
-    "tourze/wechat-mini-program-bundle": "0.0.*",
+    "tourze/wechat-mini-program-bundle": "0.1.*",
+    "tourze/json-rpc-core": "^0.0.6",
+    "tourze/json-rpc-cache-bundle": "0.0.*",
     "hashids/hashids": "^5.0"
   },
   "autoload": {
