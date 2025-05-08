@@ -2,6 +2,7 @@
 
 namespace WechatMiniProgramShareBundle\Procedure;
 
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
@@ -22,6 +23,7 @@ use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
 #[MethodTag('微信小程序')]
 #[MethodDoc('获取分享码详情')]
 #[MethodExpose('GetWechatMiniProgramShareCodeInfo')]
+#[WithMonologChannel('procedure')]
 class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
 {
     use LaunchOptionsAware;
@@ -34,7 +36,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         private readonly ShareVisitLogRepository $visitLogRepository,
         private readonly DoctrineService $doctrineService,
         private readonly Security $security,
-        private readonly LoggerInterface $procedureLogger,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -70,7 +72,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
             try {
                 $this->doctrineService->asyncInsert($log);
             } catch (\Throwable $exception) {
-                $this->procedureLogger->error('保存记录时发生错误', [
+                $this->logger->error('保存记录时发生错误', [
                     'log' => $log,
                     'exception' => $exception,
                 ]);
@@ -111,7 +113,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         try {
             $this->doctrineService->asyncInsert($log);
         } catch (\Throwable $exception) {
-            $this->procedureLogger->error('保存记录时发生错误', [
+            $this->logger->error('保存记录时发生错误', [
                 'log' => $log,
                 'exception' => $exception,
             ]);
