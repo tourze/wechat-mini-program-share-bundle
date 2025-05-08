@@ -23,7 +23,8 @@
     "tourze/wechat-mini-program-bundle": "0.1.*",
     "tourze/json-rpc-core": "^0.0.6",
     "tourze/json-rpc-cache-bundle": "0.0.*",
-    "hashids/hashids": "^5.0"
+    "hashids/hashids": "^5.0",
+    "psr/log": "^3|^2|^1"
   },
   "autoload": {
     "psr-4": {
