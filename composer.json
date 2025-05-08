@@ -24,7 +24,15 @@
     "tourze/json-rpc-core": "^0.0.6",
     "tourze/json-rpc-cache-bundle": "0.0.*",
     "hashids/hashids": "^5.0",
-    "psr/log": "^3|^2|^1"
+    "psr/log": "^3|^2|^1",
+    "tourze/doctrine-snowflake-bundle": "0.1.*",
+    "tourze/doctrine-indexed-bundle": "0.0.*",
+    "tourze/doctrine-timestamp-bundle": "0.0.*",
+    "tourze/doctrine-async-bundle": "^0.0.6",
+    "symfony/event-dispatcher": "^6.4",
+    "nesbot/carbon": "^2.72 || ^3",
+    "yiisoft/arrays": "^3",
+    "symfony/security-bundle": "^6.4"
   },
   "autoload": {
     "psr-4": {
