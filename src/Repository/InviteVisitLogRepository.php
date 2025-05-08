@@ -4,7 +4,6 @@ namespace WechatMiniProgramShareBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineEnhanceBundle\Repository\CommonRepositoryAware;
 use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
 
 /**
@@ -15,7 +14,6 @@ use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
  */
 class InviteVisitLogRepository extends ServiceEntityRepository
 {
-    use CommonRepositoryAware;
 
     public function __construct(ManagerRegistry $registry)
     {
