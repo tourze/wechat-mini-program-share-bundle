@@ -2,10 +2,10 @@
 
 namespace WechatMiniProgramShareBundle\EventSubscriber;
 
-use AppBundle\Repository\BizUserRepository;
 use Carbon\Carbon;
 use Hashids\Hashids;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -27,7 +27,7 @@ class InviteVisitSubscriber
 {
     public function __construct(
         private readonly DoctrineService $doctrineService,
-        private readonly BizUserRepository $bizUserRepository,
+        private readonly UserLoaderInterface $userLoader,
         private readonly UserRepository $userRepository,
         private readonly LoggerInterface $logger,
         #[Autowire(service: 'wechat-mini-program-share.hashids')] private readonly Hashids $hashids,
@@ -73,7 +73,7 @@ class InviteVisitSubscriber
             return;
         }
 
-        $bizUser = $this->bizUserRepository->find($decoded[0]);
+        $bizUser = $this->userLoader->loadUserByIdentifier($decoded[0]);
         if (!$bizUser) {
             $this->logger->warning('查找不到BizUser', [
                 'decoded' => $decoded,
