@@ -63,7 +63,7 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
         return $config;
     }
 
-    protected function getCacheKey(JsonRpcRequest $request): string
+    public function getCacheKey(JsonRpcRequest $request): string
     {
         // 如果已经登录了，那我们就不走缓存
         if ($this->security->getUser()) {
@@ -73,12 +73,12 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
         return static::buildParamCacheKey($request->getParams());
     }
 
-    protected function getCacheDuration(JsonRpcRequest $request): int
+    public function getCacheDuration(JsonRpcRequest $request): int
     {
         return 60;
     }
 
-    protected function getCacheTags(JsonRpcRequest $request): iterable
+    public function getCacheTags(JsonRpcRequest $request): iterable
     {
         yield null;
     }
