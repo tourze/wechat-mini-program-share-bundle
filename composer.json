@@ -21,6 +21,7 @@
     "symfony/event-dispatcher-contracts": "^2.5 | ^3",
     "symfony/framework-bundle": "^6.4",
     "symfony/http-kernel": "^6.4",
+    "symfony/routing": "^6.4",
     "symfony/security-bundle": "^6.4",
     "symfony/security-core": "^6.4",
     "symfony/serializer": "^6.4",
