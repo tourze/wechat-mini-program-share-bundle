@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
+use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 use WechatMiniProgramAuthBundle\Event\CodeToSessionResponseEvent;
 use WechatMiniProgramAuthBundle\Repository\UserRepository;
 use WechatMiniProgramBundle\Event\LaunchOptionsAware;
@@ -26,7 +26,7 @@ use Yiisoft\Arrays\ArrayHelper;
 class InviteVisitSubscriber
 {
     public function __construct(
-        private readonly DoctrineService $doctrineService,
+        private readonly AsyncInsertService $doctrineService,
         private readonly UserLoaderInterface $userLoader,
         private readonly UserRepository $userRepository,
         private readonly LoggerInterface $logger,

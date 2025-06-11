@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
+use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 use Tourze\JsonRPC\Core\Exception\ApiException;
 use WechatMiniProgramBundle\Enum\EnvVersion;
 use WechatMiniProgramShareBundle\Entity\ShareCode;
@@ -29,7 +29,7 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
     {
         $this->codeRepository = $this->createMock(ShareCodeRepository::class);
         $this->visitLogRepository = $this->createMock(ShareVisitLogRepository::class);
-        $this->doctrineService = $this->createMock(DoctrineService::class);
+        $this->doctrineService = $this->createMock(AsyncInsertService::class);
         $this->security = $this->createMock(Security::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 

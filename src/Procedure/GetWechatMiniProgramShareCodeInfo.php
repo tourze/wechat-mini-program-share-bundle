@@ -5,7 +5,7 @@ namespace WechatMiniProgramShareBundle\Procedure;
 use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
+use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
 use Tourze\JsonRPC\Core\Attribute\MethodParam;
@@ -34,7 +34,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
     public function __construct(
         private readonly ShareCodeRepository $codeRepository,
         private readonly ShareVisitLogRepository $visitLogRepository,
-        private readonly DoctrineService $doctrineService,
+        private readonly AsyncInsertService $doctrineService,
         private readonly Security $security,
         private readonly LoggerInterface $logger,
     ) {
