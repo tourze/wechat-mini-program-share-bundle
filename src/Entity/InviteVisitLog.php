@@ -9,21 +9,15 @@ use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatMiniProgramBundle\Entity\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
 
-#[AsPermission(title: '邀请访问记录')]
 #[ORM\Entity(repositoryClass: InviteVisitLogRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_invite_visit_log', options: ['comment' => '邀请访问记录'])]
 class InviteVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
 
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
@@ -34,21 +28,19 @@ class InviteVisitLog implements \Stringable
     private ?array $context = [];
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::STRING, length: 80, options: ['comment' => '分享者OpenID'])]
     private ?string $shareOpenId = null;
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?UserInterface $shareUser = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '分享时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '分享时间'])]
     private ?\DateTimeInterface $shareTime = null;
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::STRING, length: 80, options: ['comment' => '受邀人OpenID'])]
     private ?string $visitOpenId = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '受邀时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '受邀时间'])]
     private ?\DateTimeInterface $visitTime = null;
 
     #[ORM\Column(type: Types::STRING, length: 2000, options: ['comment' => '访问地址'])]
@@ -59,18 +51,15 @@ class InviteVisitLog implements \Stringable
     private ?UserInterface $visitUser = null;
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::BOOLEAN, options: ['comment' => '被邀请者是否新用户'])]
     private bool $newUser = false;
 
     #[ORM\Column(nullable: true, options: ['comment' => '是否已注册', 'default' => 0])]
     private ?bool $registered = null;
 
     #[CreateIpColumn]
-    #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '创建者IP'])]
     private ?string $createdFromIp = null;
 
     #[UpdateIpColumn]
-    #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '更新者IP'])]
     private ?string $updatedFromIp = null;
 
     public function getId(): ?string

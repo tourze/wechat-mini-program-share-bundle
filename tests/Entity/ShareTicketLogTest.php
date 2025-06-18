@@ -13,8 +13,8 @@ class ShareTicketLogTest extends TestCase
         $log->setOpenGid('gid456');
         $log->setMemberId(123);
         $log->setShareMemberId(456);
-        $log->setShareTime(new \DateTime('2023-01-01 00:00:00'));
-        $log->setCreateTime(new \DateTime('2023-01-02 00:00:00'));
+        $log->setShareTime(new \DateTimeImmutable('2023-01-01 00:00:00'));
+        $log->setCreateTime(new \DateTimeImmutable('2023-01-02 00:00:00'));
         
         $this->assertEquals('gid456', $log->getOpenGid());
         $this->assertEquals(123, $log->getMemberId());
@@ -29,7 +29,7 @@ class ShareTicketLogTest extends TestCase
         $log->setOpenGid('');
         $log->setMemberId(0);
         $log->setShareMemberId(0);
-        $currentDate = new \DateTime();
+        $currentDate = new \DateTimeImmutable();
         $log->setShareTime($currentDate);
         $log->setCreateTime(null);
         

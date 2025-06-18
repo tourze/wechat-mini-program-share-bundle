@@ -6,22 +6,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatMiniProgramShareBundle\Repository\ShareTicketLogRepository;
 
 /**
  * @see https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/share.html
  */
-#[AsPermission(title: 'ShareTicket')]
 #[ORM\Table(name: 'ims_member_share_ticket_report', options: ['comment' => 'ShareTicket'])]
 #[ORM\Entity(repositoryClass: ShareTicketLogRepository::class, readOnly: true)]
 class ShareTicketLog implements \Stringable
 {
-    #[ExportColumn]
-    #[ListColumn(order: -1, sorter: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
@@ -29,24 +22,19 @@ class ShareTicketLog implements \Stringable
     private ?string $id = null;
 
     #[IndexColumn]
-    #[ListColumn(order: 98, sorter: true)]
-    #[ExportColumn]
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '创建时间'])]
     private ?\DateTimeInterface $createTime = null;
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['default' => 0, 'comment' => '用户ID'])]
     private int $memberId = 0;
 
     #[IndexColumn]
-    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['default' => 0, 'comment' => '分享用户ID'])]
     private int $shareMemberId = 0;
 
     #[ORM\Column(type: Types::STRING, length: 200, nullable: false, options: ['default' => '', 'comment' => '群标识'])]
     private string $openGid = '';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '分享时间'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '分享时间'])]
     private \DateTimeInterface $shareTime;
 
     public function getId(): ?string

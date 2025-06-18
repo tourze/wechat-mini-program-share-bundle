@@ -55,7 +55,7 @@ class InviteVisitSubscriber
             $decoded = $this->hashids->decode($param);
         } catch (\Throwable $exception) {
         }
-        if (empty($decoded)) {
+        if ((bool) empty($decoded)) {
             // 兼容一次
             $decoded = explode(',', $param);
         }
@@ -146,7 +146,7 @@ class InviteVisitSubscriber
         }
 
         $options = $event->getEnterOptions();
-        if (empty($options)) {
+        if ((bool) empty($options)) {
             $options = $event->getLaunchOptions();
         }
 

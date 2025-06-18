@@ -11,15 +11,7 @@ use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Editable;
-use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
 use Tourze\EasyAdmin\Attribute\Column\PictureColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramBundle\Enum\EnvVersion;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
@@ -27,46 +19,28 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 /**
  * 分享码
  */
-#[Editable]
-#[Creatable]
-#[AsPermission(title: '分享码')]
 #[ORM\Entity(repositoryClass: ShareCodeRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_share_code', options: ['comment' => '分享码'])]
 class ShareCode implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
-    #[FormField(title: '小程序')]
-    #[ListColumn(title: '小程序')]
     #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Account $account = null;
 
-    #[FormField]
-    #[Keyword]
-    #[ListColumn]
-    #[ORM\Column(type: Types::STRING, length: 2000, options: ['comment' => '分享链接'])]
     private ?string $linkUrl = null;
 
     #[PictureColumn]
     #[Groups(['restful_read'])]
-    #[ListColumn]
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '分享码图片'])]
     private ?string $imageUrl = null;
 
-    #[FormField(span: 6)]
-    #[ListColumn]
-    #[ORM\Column(type: Types::STRING, length: 30, nullable: true, enumType: EnvVersion::class, options: ['default' => 'release', 'comment' => '打开版本'])]
     private ?EnvVersion $envVersion = null;
 
-    #[BoolColumn]
-    #[ListColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '是否有效', 'default' => 1])]
     private ?bool $valid = null;
 
@@ -74,24 +48,18 @@ class ShareCode implements \Stringable
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private UserInterface $user;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::INTEGER, options: ['comment' => '尺寸', 'default' => 600])]
     private ?int $size = null;
 
     #[CreateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '创建时IP'])]
     private ?string $createdFromIp = null;
 
     #[UpdateIpColumn]
-    #[ORM\Column(length: 128, nullable: true, options: ['comment' => '更新时IP'])]
     private ?string $updatedFromIp = null;
 
     #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
     private ?string $createdBy = null;
 
     #[UpdatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '更新人'])]
     private ?string $updatedBy = null;
 
     public function getId(): ?int

@@ -14,8 +14,8 @@ class InviteVisitLogTest extends TestCase
         $log->setVisitOpenId('visit_openid');
         $log->setVisitPath('/pages/index');
         $log->setNewUser(true);
-        $log->setShareTime(new \DateTime('2023-01-01 00:00:00'));
-        $log->setVisitTime(new \DateTime('2023-01-02 00:00:00'));
+        $log->setShareTime(new \DateTimeImmutable('2023-01-01 00:00:00'));
+        $log->setVisitTime(new \DateTimeImmutable('2023-01-02 00:00:00'));
         $log->setLaunchOptions(['foo' => 'bar']);
         $log->setEnterOptions(['bar' => 'baz']);
         

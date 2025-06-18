@@ -77,7 +77,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
             '/pages/my/index',
         ];
         foreach ($tabPages as $tabPage) {
-            if (str_starts_with($url, $tabPage)) {
+            if ((bool) str_starts_with($url, $tabPage)) {
                 $log->setResponse([
                     '__reLaunch' => [
                         'url' => $url,

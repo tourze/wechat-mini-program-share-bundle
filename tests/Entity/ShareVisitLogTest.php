@@ -24,7 +24,7 @@ class ShareVisitLogTest extends TestCase
         $log->setLaunchOptions(['foo' => 'bar']);
         $log->setEnterOptions(['bar' => 'baz']);
         $log->setResponse(['ok' => true]);
-        $log->setCreateTime(new \DateTime('2023-01-01 00:00:00'));
+        $log->setCreateTime(new \DateTimeImmutable('2023-01-01 00:00:00'));
         
         $this->assertSame($shareCode, $log->getCode());
         $this->assertEquals(EnvVersion::RELEASE, $log->getEnvVersion());
