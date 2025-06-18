@@ -9,9 +9,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Column\PictureColumn;
+use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramBundle\Enum\EnvVersion;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
@@ -24,6 +22,8 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 class ShareCode implements \Stringable
 {
     use TimestampableAware;
+    use BlameableAware;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
@@ -35,7 +35,6 @@ class ShareCode implements \Stringable
 
     private ?string $linkUrl = null;
 
-    #[PictureColumn]
     #[Groups(['restful_read'])]
     private ?string $imageUrl = null;
 
@@ -46,7 +45,7 @@ class ShareCode implements \Stringable
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    private UserInterface $user;
+    private ?UserInterface $user = null;
 
     private ?int $size = null;
 
@@ -55,12 +54,6 @@ class ShareCode implements \Stringable
 
     #[UpdateIpColumn]
     private ?string $updatedFromIp = null;
-
-    #[CreatedByColumn]
-    private ?string $createdBy = null;
-
-    #[UpdatedByColumn]
-    private ?string $updatedBy = null;
 
     public function getId(): ?int
     {
@@ -127,12 +120,12 @@ class ShareCode implements \Stringable
         return $this;
     }
 
-    public function getUser(): UserInterface
+    public function getUser(): ?UserInterface
     {
         return $this->user;
     }
 
-    public function setUser(UserInterface $user): self
+    public function setUser(?UserInterface $user): self
     {
         $this->user = $user;
 
@@ -173,30 +166,6 @@ class ShareCode implements \Stringable
         $this->updatedFromIp = $updatedFromIp;
 
         return $this;
-    }
-
-    public function setCreatedBy(?string $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
-    }
-
-    public function setUpdatedBy(?string $updatedBy): self
-    {
-        $this->updatedBy = $updatedBy;
-
-        return $this;
-    }
-
-    public function getUpdatedBy(): ?string
-    {
-        return $this->updatedBy;
     }
 
     public function __toString(): string

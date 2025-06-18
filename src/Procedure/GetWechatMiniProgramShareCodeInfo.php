@@ -38,6 +38,9 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         $code = $this->codeRepository->find($this->id);
@@ -77,7 +80,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
             '/pages/my/index',
         ];
         foreach ($tabPages as $tabPage) {
-            if ((bool) str_starts_with($url, $tabPage)) {
+            if (str_starts_with($url, $tabPage)) {
                 $log->setResponse([
                     '__reLaunch' => [
                         'url' => $url,

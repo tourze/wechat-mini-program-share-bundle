@@ -29,7 +29,10 @@ class ShareVisitLog implements \Stringable
 
     private ?EnvVersion $envVersion = null;
 
-#[ORM\Column(type: Types::JSON, options: ['comment' => '字段说明'])]
+    /**
+     * @var array<string, mixed>
+     */
+    #[ORM\Column(type: Types::JSON, options: ['comment' => '字段说明'])]
     private array $response = [];
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
@@ -72,11 +75,17 @@ class ShareVisitLog implements \Stringable
         return $this;
     }
 
-    public function getResponse(): ?array
+    /**
+     * @return array<string, mixed>
+     */
+    public function getResponse(): array
     {
         return $this->response;
     }
 
+    /**
+     * @param array<string, mixed> $response
+     */
     public function setResponse(array $response): self
     {
         $this->response = $response;

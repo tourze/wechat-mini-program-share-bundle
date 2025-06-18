@@ -24,6 +24,9 @@ class InviteVisitLog implements \Stringable
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
     private ?string $id = null;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '上下文'])]
     private ?array $context = [];
 
@@ -67,11 +70,17 @@ class InviteVisitLog implements \Stringable
         return $this->id;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getContext(): ?array
     {
         return $this->context;
     }
 
+    /**
+     * @param array<string, mixed>|null $context
+     */
     public function setContext(?array $context): self
     {
         $this->context = $context;

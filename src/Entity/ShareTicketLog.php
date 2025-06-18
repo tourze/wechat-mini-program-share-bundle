@@ -35,7 +35,7 @@ class ShareTicketLog implements \Stringable
     private string $openGid = '';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '分享时间'])]
-    private \DateTimeInterface $shareTime;
+    private ?\DateTimeInterface $shareTime = null;
 
     public function getId(): ?string
     {
@@ -84,12 +84,12 @@ class ShareTicketLog implements \Stringable
         $this->openGid = $openGid;
     }
 
-    public function getShareTime(): \DateTimeInterface
+    public function getShareTime(): ?\DateTimeInterface
     {
         return $this->shareTime;
     }
 
-    public function setShareTime(\DateTimeInterface $shareTime): void
+    public function setShareTime(?\DateTimeInterface $shareTime): void
     {
         $this->shareTime = $shareTime;
     }

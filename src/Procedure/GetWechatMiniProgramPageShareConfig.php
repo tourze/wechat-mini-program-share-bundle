@@ -22,9 +22,15 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     #[MethodParam('当前页面路径')]
     public string $path;
 
+    /**
+     * @var array<string, mixed>
+     */
     #[MethodParam('当前页面参数')]
     public array $params = [];
 
+    /**
+     * @var array<string, mixed>
+     */
     #[MethodParam('记录的是默认的分享配置')]
     public array $config = [];
 
@@ -34,6 +40,9 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         if (!isset($this->config['path'])) {
@@ -78,6 +87,9 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
         return 60;
     }
 
+    /**
+     * @return iterable<string|null>
+     */
     public function getCacheTags(JsonRpcRequest $request): iterable
     {
         yield null;
