@@ -15,7 +15,6 @@ use Tourze\JsonRPC\Core\Procedure\BaseProcedure;
 use WechatMiniProgramBundle\Procedure\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Entity\ShareVisitLog;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
-use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
 
 /**
  * 这个接口是给中转页调用的，前端需要确认起码 code2session流程跑完了
@@ -33,7 +32,6 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
 
     public function __construct(
         private readonly ShareCodeRepository $codeRepository,
-        private readonly ShareVisitLogRepository $visitLogRepository,
         private readonly DoctrineService $doctrineService,
         private readonly Security $security,
         private readonly LoggerInterface $logger,
@@ -43,7 +41,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
     public function execute(): array
     {
         $code = $this->codeRepository->find($this->id);
-        if (!$code) {
+        if ($code === null) {
             throw new ApiException('找不到分享码');
         }
 
@@ -56,29 +54,8 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         $log->setEnvVersion($code->getEnvVersion());
         $log->setLaunchOptions($this->launchOptions);
         $log->setEnterOptions($this->enterOptions);
-        if ($this->security->getUser()) {
+        if ($this->security->getUser() !== null) {
             $log->setUser($this->security->getUser());
-        }
-
-        if (!$code->isValid()) {
-            $log->setResponse([
-                [
-                    '__reLaunch' => [
-                        'url' => $_ENV['WECHAT_MINI_PROGRAM_INDEX_PAGE'] ?? '/pages/index/index',
-                    ],
-                ],
-            ]);
-
-            try {
-                $this->doctrineService->asyncInsert($log);
-            } catch (\Throwable $exception) {
-                $this->logger->error('保存记录时发生错误', [
-                    'log' => $log,
-                    'exception' => $exception,
-                ]);
-            }
-
-            return $log->getResponse();
         }
 
         // 这里只处理了默认的情形，如果要跳转到tab页，需要自己订阅事件来进行处理

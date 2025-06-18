@@ -18,7 +18,7 @@ use WechatMiniProgramShareBundle\Repository\ShareTicketLogRepository;
 #[AsPermission(title: 'ShareTicket')]
 #[ORM\Table(name: 'ims_member_share_ticket_report', options: ['comment' => 'ShareTicket'])]
 #[ORM\Entity(repositoryClass: ShareTicketLogRepository::class, readOnly: true)]
-class ShareTicketLog
+class ShareTicketLog implements \Stringable
 {
     #[ExportColumn]
     #[ListColumn(order: -1, sorter: true)]
@@ -104,5 +104,10 @@ class ShareTicketLog
     public function setShareTime(\DateTimeInterface $shareTime): void
     {
         $this->shareTime = $shareTime;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('ShareTicketLog[%s]', $this->id ?: 'new');
     }
 }

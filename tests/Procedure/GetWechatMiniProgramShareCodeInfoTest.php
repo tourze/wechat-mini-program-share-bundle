@@ -14,13 +14,11 @@ use WechatMiniProgramShareBundle\Entity\ShareCode;
 use WechatMiniProgramShareBundle\Entity\ShareVisitLog;
 use WechatMiniProgramShareBundle\Procedure\GetWechatMiniProgramShareCodeInfo;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
-use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
 
 class GetWechatMiniProgramShareCodeInfoTest extends TestCase
 {
     private GetWechatMiniProgramShareCodeInfo $procedure;
     private MockObject $codeRepository;
-    private MockObject $visitLogRepository;
     private MockObject $doctrineService;
     private MockObject $security;
     private MockObject $logger;
@@ -28,14 +26,12 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
     protected function setUp(): void
     {
         $this->codeRepository = $this->createMock(ShareCodeRepository::class);
-        $this->visitLogRepository = $this->createMock(ShareVisitLogRepository::class);
         $this->doctrineService = $this->createMock(DoctrineService::class);
         $this->security = $this->createMock(Security::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->procedure = new GetWechatMiniProgramShareCodeInfo(
             $this->codeRepository,
-            $this->visitLogRepository,
             $this->doctrineService,
             $this->security,
             $this->logger
@@ -92,7 +88,6 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
         $result = $this->procedure->execute();
         
         // 验证返回值包含正确的重定向信息
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('__redirectTo', $result);
         $this->assertEquals('/pages/test/test', $result['__redirectTo']['url']);
     }
@@ -115,7 +110,6 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
         $result = $this->procedure->execute();
         
         // 验证返回值包含正确的重定向信息 (对于Tab页使用reLaunch)
-        $this->assertIsArray($result);
         $this->assertArrayHasKey('__reLaunch', $result);
         $this->assertEquals('/pages/index/index', $result['__reLaunch']['url']);
     }

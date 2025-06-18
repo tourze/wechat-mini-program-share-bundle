@@ -55,7 +55,7 @@ class InviteVisitSubscriber
             $decoded = $this->hashids->decode($param);
         } catch (\Throwable $exception) {
         }
-        if (!$decoded) {
+        if (empty($decoded)) {
             // 兼容一次
             $decoded = explode(',', $param);
         }
@@ -74,7 +74,7 @@ class InviteVisitSubscriber
         }
 
         $bizUser = $this->userLoader->loadUserByIdentifier($decoded[0]);
-        if (!$bizUser) {
+        if ($bizUser === null) {
             $this->logger->warning('查找不到BizUser', [
                 'decoded' => $decoded,
             ]);
@@ -83,7 +83,7 @@ class InviteVisitSubscriber
         }
 
         $wechatUser = $this->userRepository->transformToWechatUser($bizUser);
-        if (!$wechatUser) {
+        if ($wechatUser === null) {
             $this->logger->warning('查找不到小程序User', [
                 'decoded' => $decoded,
             ]);
@@ -140,7 +140,11 @@ class InviteVisitSubscriber
             return '';
         }
 
-        /** @var LaunchOptionsAware $event */
+        // 检查事件是否实现了必要的方法
+        if (!method_exists($event, 'getEnterOptions') || !method_exists($event, 'getLaunchOptions')) {
+            return '';
+        }
+
         $options = $event->getEnterOptions();
         if (empty($options)) {
             $options = $event->getLaunchOptions();

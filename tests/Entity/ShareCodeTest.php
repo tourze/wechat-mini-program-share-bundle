@@ -106,7 +106,7 @@ class ShareCodeTest extends TestCase
 
     public function testGetterSetterForCreateTime(): void
     {
-        $createTime = new \DateTime();
+        $createTime = new \DateTimeImmutable();
         $reflection = new \ReflectionProperty($this->shareCode, 'createTime');
         $reflection->setAccessible(true);
         $reflection->setValue($this->shareCode, $createTime);
@@ -115,7 +115,7 @@ class ShareCodeTest extends TestCase
 
     public function testGetterSetterForUpdateTime(): void
     {
-        $updateTime = new \DateTime();
+        $updateTime = new \DateTimeImmutable();
         $this->shareCode->setUpdateTime($updateTime);
         $this->assertSame($updateTime, $this->shareCode->getUpdateTime());
     }

@@ -18,7 +18,7 @@ use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
 #[AsPermission(title: '邀请访问记录')]
 #[ORM\Entity(repositoryClass: InviteVisitLogRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_invite_visit_log', options: ['comment' => '邀请访问记录'])]
-class InviteVisitLog
+class InviteVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
 
@@ -214,5 +214,10 @@ class InviteVisitLog
         $this->updatedFromIp = $updatedFromIp;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('InviteVisitLog[%s]', $this->id ?: 'new');
     }
 }

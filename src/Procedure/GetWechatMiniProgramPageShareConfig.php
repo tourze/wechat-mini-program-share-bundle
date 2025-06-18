@@ -40,7 +40,6 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
             return [];
         }
 
-        /** @var BizUser|null $user */
         $user = $this->security->getUser();
 
         // 这里拿到的是前端的默认分享配置
@@ -48,8 +47,9 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
 
         $path = $config['path'];
 
-        if ($user) {
-            $value = $this->hashids->encode($user->getId(), Carbon::now()->getTimestamp());
+        if ($user !== null) {
+            // 使用用户标识符而不是ID，因为UserInterface不保证有getId()方法
+            $value = $this->hashids->encode($user->getUserIdentifier(), Carbon::now()->getTimestamp());
 
             $parts = parse_url((string) $path);
             $query = $parts['query'] ?? '';
@@ -66,7 +66,7 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     public function getCacheKey(JsonRpcRequest $request): string
     {
         // 如果已经登录了，那我们就不走缓存
-        if ($this->security->getUser()) {
+        if ($this->security->getUser() !== null) {
             return '';
         }
 

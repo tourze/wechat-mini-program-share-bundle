@@ -20,7 +20,7 @@ use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
 #[AsPermission(title: '分享码访问记录')]
 #[ORM\Entity(repositoryClass: ShareVisitLogRepository::class, readOnly: true)]
 #[ORM\Table(name: 'wechat_mini_program_share_visit_log', options: ['comment' => '分享码访问记录'])]
-class ShareVisitLog
+class ShareVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
 
@@ -133,5 +133,10 @@ class ShareVisitLog
     public function getCreateTime(): ?\DateTimeInterface
     {
         return $this->createTime;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('ShareVisitLog[%s]', $this->id ?: 'new');
     }
 }

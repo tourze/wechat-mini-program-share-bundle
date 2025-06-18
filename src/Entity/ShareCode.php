@@ -32,7 +32,7 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 #[AsPermission(title: '分享码')]
 #[ORM\Entity(repositoryClass: ShareCodeRepository::class)]
 #[ORM\Table(name: 'wechat_mini_program_share_code', options: ['comment' => '分享码'])]
-class ShareCode
+class ShareCode implements \Stringable
 {
     use TimestampableAware;
     #[ListColumn(order: -1)]
@@ -229,4 +229,9 @@ class ShareCode
     public function getUpdatedBy(): ?string
     {
         return $this->updatedBy;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('ShareCode[%s]', $this->id ?: 'new');
     }}
