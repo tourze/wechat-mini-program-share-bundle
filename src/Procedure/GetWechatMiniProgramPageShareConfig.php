@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramShareBundle\Procedure;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Hashids\Hashids;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -58,7 +58,7 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
 
         if ($user !== null) {
             // 使用用户标识符而不是ID，因为UserInterface不保证有getId()方法
-            $value = $this->hashids->encode($user->getUserIdentifier(), Carbon::now()->getTimestamp());
+            $value = $this->hashids->encode($user->getUserIdentifier(), CarbonImmutable::now()->getTimestamp());
 
             $pathStr = is_string($path) ? $path : '';
             $parts = parse_url($pathStr);

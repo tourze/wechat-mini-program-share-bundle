@@ -2,7 +2,7 @@
 
 namespace WechatMiniProgramShareBundle\Tests\Procedure;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Hashids\Hashids;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -61,8 +61,8 @@ class GetWechatMiniProgramPageShareConfigTest extends TestCase
             ->method('getUser')
             ->willReturn($user);
 
-        Carbon::setTestNow('2023-01-01 12:00:00');
-        $timestamp = Carbon::now()->getTimestamp();
+        CarbonImmutable::setTestNow('2023-01-01 12:00:00');
+        $timestamp = CarbonImmutable::now()->getTimestamp();
 
         $this->hashids->expects($this->once())
             ->method('encode')
@@ -78,7 +78,7 @@ class GetWechatMiniProgramPageShareConfigTest extends TestCase
         $expectedPath = '/pages/detail?id=456&' . WechatMiniProgramShareBundle::PARAM_KEY . '=abc123';
         $this->assertEquals(['path' => $expectedPath], $result);
 
-        Carbon::setTestNow(null);
+        CarbonImmutable::setTestNow(null);
     }
 
     public function testGetCacheKeyWithLoggedInUser(): void
