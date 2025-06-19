@@ -13,6 +13,7 @@
     "hashids/hashids": "^5.0",
     "monolog/monolog": "^3.1",
     "nesbot/carbon": "^2.72 || ^3",
+    "psr/link": "^1.1|^2.0",
     "psr/log": "^3|^2|^1",
     "symfony/config": "^6.4",
     "symfony/dependency-injection": "^6.4",
