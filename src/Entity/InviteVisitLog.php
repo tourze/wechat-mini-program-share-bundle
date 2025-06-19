@@ -38,13 +38,13 @@ class InviteVisitLog implements \Stringable
     private ?UserInterface $shareUser = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '分享时间'])]
-    private ?\DateTimeInterface $shareTime = null;
+    private ?\DateTimeImmutable $shareTime = null;
 
     #[IndexColumn]
     private ?string $visitOpenId = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '受邀时间'])]
-    private ?\DateTimeInterface $visitTime = null;
+    private ?\DateTimeImmutable $visitTime = null;
 
     #[ORM\Column(type: Types::STRING, length: 2000, options: ['comment' => '访问地址'])]
     private ?string $visitPath = null;
@@ -100,12 +100,12 @@ class InviteVisitLog implements \Stringable
         return $this;
     }
 
-    public function getShareTime(): ?\DateTimeInterface
+    public function getShareTime(): ?\DateTimeImmutable
     {
         return $this->shareTime;
     }
 
-    public function setShareTime(\DateTimeInterface $shareTime): self
+    public function setShareTime(\DateTimeImmutable $shareTime): self
     {
         $this->shareTime = $shareTime;
 
@@ -124,12 +124,12 @@ class InviteVisitLog implements \Stringable
         return $this;
     }
 
-    public function getVisitTime(): ?\DateTimeInterface
+    public function getVisitTime(): ?\DateTimeImmutable
     {
         return $this->visitTime;
     }
 
-    public function setVisitTime(\DateTimeInterface $visitTime): self
+    public function setVisitTime(\DateTimeImmutable $visitTime): self
     {
         $this->visitTime = $visitTime;
 

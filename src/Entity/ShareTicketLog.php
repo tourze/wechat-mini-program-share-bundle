@@ -23,7 +23,7 @@ class ShareTicketLog implements \Stringable
 
     #[IndexColumn]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '创建时间'])]
-    private ?\DateTimeInterface $createTime = null;
+    private ?\DateTimeImmutable $createTime = null;
 
     #[IndexColumn]
     private int $memberId = 0;
@@ -35,21 +35,21 @@ class ShareTicketLog implements \Stringable
     private string $openGid = '';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '分享时间'])]
-    private ?\DateTimeInterface $shareTime = null;
+    private ?\DateTimeImmutable $shareTime = null;
 
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function setCreateTime(?\DateTimeInterface $createdAt): self
+    public function setCreateTime(?\DateTimeImmutable $createdAt): self
     {
         $this->createTime = $createdAt;
 
         return $this;
     }
 
-    public function getCreateTime(): ?\DateTimeInterface
+    public function getCreateTime(): ?\DateTimeImmutable
     {
         return $this->createTime;
     }
@@ -84,12 +84,12 @@ class ShareTicketLog implements \Stringable
         $this->openGid = $openGid;
     }
 
-    public function getShareTime(): ?\DateTimeInterface
+    public function getShareTime(): ?\DateTimeImmutable
     {
         return $this->shareTime;
     }
 
-    public function setShareTime(?\DateTimeInterface $shareTime): void
+    public function setShareTime(?\DateTimeImmutable $shareTime): void
     {
         $this->shareTime = $shareTime;
     }

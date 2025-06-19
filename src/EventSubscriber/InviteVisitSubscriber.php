@@ -2,7 +2,6 @@
 
 namespace WechatMiniProgramShareBundle\EventSubscriber;
 
-use Carbon\Carbon;
 use Hashids\Hashids;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
@@ -109,9 +108,9 @@ class InviteVisitSubscriber
         $log->setEnterOptions($event->getEnterOptions());
 
         $log->setShareUser($bizUser);
-        $log->setShareTime(Carbon::createFromTimestamp($decoded[1], date_default_timezone_get()));
+        $log->setShareTime(\DateTimeImmutable::createFromFormat('U', (string) $decoded[1]));
 
-        $log->setVisitTime(Carbon::now());
+        $log->setVisitTime(new \DateTimeImmutable());
         $log->setVisitPath($this->findPath($event));
         $log->setVisitUser($event->getBizUser());
         $log->setNewUser($event->isNewUser());
