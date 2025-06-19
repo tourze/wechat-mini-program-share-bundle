@@ -26,10 +26,13 @@ class InviteVisitLogRepository extends ServiceEntityRepository
      */
     public function findByValidTrue(): array
     {
-        return $this->createQueryBuilder('i')
+        /** @var InviteVisitLog[] $result */
+        $result = $this->createQueryBuilder('i')
             ->andWhere('i.valid = :valid')
             ->setParameter('valid', true)
             ->getQuery()
             ->getResult();
+        
+        return $result;
     }
 }

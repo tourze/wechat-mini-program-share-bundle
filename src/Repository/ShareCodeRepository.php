@@ -26,10 +26,13 @@ class ShareCodeRepository extends ServiceEntityRepository
      */
     public function findByValidTrue(): array
     {
-        return $this->createQueryBuilder('s')
+        /** @var ShareCode[] $result */
+        $result = $this->createQueryBuilder('s')
             ->andWhere('s.valid = :valid')
             ->setParameter('valid', true)
             ->getQuery()
             ->getResult();
+        
+        return $result;
     }
 }

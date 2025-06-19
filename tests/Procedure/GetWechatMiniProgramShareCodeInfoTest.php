@@ -89,6 +89,8 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
         
         // 验证返回值包含正确的重定向信息
         $this->assertArrayHasKey('__redirectTo', $result);
+        $this->assertIsArray($result['__redirectTo']);
+        $this->assertArrayHasKey('url', $result['__redirectTo']);
         $this->assertEquals('/pages/test/test', $result['__redirectTo']['url']);
     }
 
@@ -111,6 +113,8 @@ class GetWechatMiniProgramShareCodeInfoTest extends TestCase
         
         // 验证返回值包含正确的重定向信息 (对于Tab页使用reLaunch)
         $this->assertArrayHasKey('__reLaunch', $result);
+        $this->assertIsArray($result['__reLaunch']);
+        $this->assertArrayHasKey('url', $result['__reLaunch']);
         $this->assertEquals('/pages/index/index', $result['__reLaunch']['url']);
     }
 }

@@ -51,12 +51,16 @@ class InviteVisitSubscriber
         $param = $query[WechatMiniProgramShareBundle::PARAM_KEY];
         $decoded = [];
         try {
-            $decoded = $this->hashids->decode($param);
+            if (is_string($param)) {
+                $decoded = $this->hashids->decode($param);
+            }
         } catch (\Throwable $exception) {
         }
         if (empty($decoded)) {
             // 兼容一次
-            $decoded = explode(',', $param);
+            if (is_string($param)) {
+                $decoded = explode(',', $param);
+            }
         }
 
         $this->logger->info('获取邀请分享参数', [
@@ -72,7 +76,7 @@ class InviteVisitSubscriber
             return;
         }
 
-        $bizUser = $this->userLoader->loadUserByIdentifier($decoded[0]);
+        $bizUser = $this->userLoader->loadUserByIdentifier((string) $decoded[0]);
         if ($bizUser === null) {
             $this->logger->warning('查找不到BizUser', [
                 'decoded' => $decoded,
@@ -108,7 +112,11 @@ class InviteVisitSubscriber
         $log->setEnterOptions($event->getEnterOptions());
 
         $log->setShareUser($bizUser);
-        $log->setShareTime(\DateTimeImmutable::createFromFormat('U', (string) $decoded[1]));
+        $shareTime = \DateTimeImmutable::createFromFormat('U', (string) $decoded[1]);
+        if (false === $shareTime) {
+            $shareTime = new \DateTimeImmutable();
+        }
+        $log->setShareTime($shareTime);
 
         $log->setVisitTime(new \DateTimeImmutable());
         $log->setVisitPath($this->findPath($event));
@@ -149,10 +157,15 @@ class InviteVisitSubscriber
             $options = $event->getLaunchOptions();
         }
 
-        $path = ArrayHelper::getValue($options, 'path', '');
+        if (!is_array($options) && !is_object($options)) {
+            return '';
+        }
 
-        $query = (array) ArrayHelper::getValue($options, 'query');
-        $query = http_build_query($query);
+        $pathValue = ArrayHelper::getValue($options, 'path', '');
+        $path = is_string($pathValue) ? $pathValue : '';
+
+        $queryData = ArrayHelper::getValue($options, 'query');
+        $query = is_array($queryData) ? http_build_query($queryData) : '';
 
         return $path . (empty($query) ? '' : "?{$query}");
     }

@@ -35,6 +35,7 @@ class ShareCodeRepositoryTest extends TestCase
     public function testFindByValidTrue(): void
     {
         // 简化测试，仅验证方法存在
-        $this->assertTrue(method_exists($this->repository, 'findByValidTrue'));
+        $reflection = new \ReflectionClass($this->repository);
+        $this->assertTrue($reflection->hasMethod('findByValidTrue'));
     }
 }

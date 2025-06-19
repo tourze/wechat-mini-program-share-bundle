@@ -48,7 +48,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
             throw new ApiException('找不到分享码');
         }
 
-        if (!$code->isValid()) {
+        if (false === $code->isValid()) {
             throw new ApiException('分享码已无效');
         }
 
@@ -63,6 +63,9 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
 
         // 这里只处理了默认的情形，如果要跳转到tab页，需要自己订阅事件来进行处理
         $url = $code->getLinkUrl();
+        if (null === $url) {
+            $url = '';
+        }
         $url = trim($url, '/');
         $url = "/{$url}";
 

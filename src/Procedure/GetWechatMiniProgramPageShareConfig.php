@@ -60,11 +60,16 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
             // 使用用户标识符而不是ID，因为UserInterface不保证有getId()方法
             $value = $this->hashids->encode($user->getUserIdentifier(), Carbon::now()->getTimestamp());
 
-            $parts = parse_url((string) $path);
-            $query = $parts['query'] ?? '';
-            parse_str($query, $query);
-            $query[WechatMiniProgramShareBundle::PARAM_KEY] = $value;
-            $path = "{$parts['path']}?" . http_build_query($query);
+            $pathStr = is_string($path) ? $path : '';
+            $parts = parse_url($pathStr);
+            if (false === $parts) {
+                $parts = [];
+            }
+            $queryStr = isset($parts['query']) ? $parts['query'] : '';
+            parse_str($queryStr, $queryArray);
+            $queryArray[WechatMiniProgramShareBundle::PARAM_KEY] = $value;
+            $pathPart = isset($parts['path']) ? $parts['path'] : '';
+            $path = $pathPart . '?' . http_build_query($queryArray);
 
             $config['path'] = $path;
         }
