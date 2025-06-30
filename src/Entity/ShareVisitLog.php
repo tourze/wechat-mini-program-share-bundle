@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use WechatMiniProgramBundle\Entity\LaunchOptionsAware;
 use WechatMiniProgramBundle\Enum\EnvVersion;
 use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
@@ -16,12 +16,7 @@ use WechatMiniProgramShareBundle\Repository\ShareVisitLogRepository;
 class ShareVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
-
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
+    use SnowflakeKeyAware;
 
     #[ORM\ManyToOne(targetEntity: ShareCode::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -46,10 +41,6 @@ class ShareVisitLog implements \Stringable
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '创建时间'])]
     private ?\DateTimeImmutable $createTime = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function getEnvVersion(): ?EnvVersion
     {
@@ -129,6 +120,6 @@ class ShareVisitLog implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('ShareVisitLog[%s]', $this->id ?: 'new');
+        return sprintf('ShareVisitLog[%s]', $this->id ?? 'new');
     }
 }

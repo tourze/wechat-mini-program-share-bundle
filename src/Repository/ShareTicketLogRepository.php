@@ -8,7 +8,7 @@ use WechatMiniProgramShareBundle\Entity\ShareTicketLog;
 
 /**
  * @extends ServiceEntityRepository<ShareTicketLog>
- * 
+ *
  * @method ShareTicketLog|null find($id, $lockMode = null, $lockVersion = null)
  * @method ShareTicketLog|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method ShareTicketLog[]    findAll()

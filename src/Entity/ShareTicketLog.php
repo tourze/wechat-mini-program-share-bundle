@@ -5,7 +5,7 @@ namespace WechatMiniProgramShareBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use WechatMiniProgramShareBundle\Repository\ShareTicketLogRepository;
 
 /**
@@ -15,11 +15,7 @@ use WechatMiniProgramShareBundle\Repository\ShareTicketLogRepository;
 #[ORM\Entity(repositoryClass: ShareTicketLogRepository::class, readOnly: true)]
 class ShareTicketLog implements \Stringable
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
+    use SnowflakeKeyAware;
 
     #[IndexColumn]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '创建时间'])]
@@ -37,10 +33,6 @@ class ShareTicketLog implements \Stringable
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '分享时间'])]
     private ?\DateTimeImmutable $shareTime = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     public function setCreateTime(?\DateTimeImmutable $createdAt): self
     {
@@ -96,6 +88,6 @@ class ShareTicketLog implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('ShareTicketLog[%s]', $this->id ?: 'new');
+        return sprintf('ShareTicketLog[%s]', $this->id ?? 'new');
     }
 }

@@ -8,7 +8,7 @@ use WechatMiniProgramShareBundle\Entity\ShareCode;
 
 /**
  * @extends ServiceEntityRepository<ShareCode>
- * 
+ *
  * @method ShareCode|null find($id, $lockMode = null, $lockVersion = null)
  * @method ShareCode|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method ShareCode[]    findAll()

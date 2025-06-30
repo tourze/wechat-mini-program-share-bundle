@@ -19,15 +19,15 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 /**
  * 这个接口是给中转页调用的，前端需要确认起码 code2session流程跑完了
  */
-#[MethodTag('微信小程序')]
-#[MethodDoc('获取分享码详情')]
-#[MethodExpose('GetWechatMiniProgramShareCodeInfo')]
-#[WithMonologChannel('procedure')]
+#[MethodTag(name: '微信小程序')]
+#[MethodDoc(summary: '获取分享码详情')]
+#[MethodExpose(method: 'GetWechatMiniProgramShareCodeInfo')]
+#[WithMonologChannel(channel: 'procedure')]
 class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
 {
     use LaunchOptionsAware;
 
-    #[MethodParam('分享码ID')]
+    #[MethodParam(description: '分享码ID')]
     public string $id;
 
     public function __construct(

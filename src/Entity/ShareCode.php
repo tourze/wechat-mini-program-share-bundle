@@ -35,7 +35,7 @@ class ShareCode implements \Stringable
 
     private ?string $linkUrl = null;
 
-    #[Groups(['restful_read'])]
+    #[Groups(groups: ['restful_read'])]
     private ?string $imageUrl = null;
 
     private ?EnvVersion $envVersion = null;
@@ -170,5 +170,5 @@ class ShareCode implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('ShareCode[%s]', $this->id ?: 'new');
+        return sprintf('ShareCode[%s]', $this->id ?? 'new');
     }}

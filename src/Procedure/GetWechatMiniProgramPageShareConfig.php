@@ -14,24 +14,24 @@ use Tourze\JsonRPC\Core\Model\JsonRpcRequest;
 use Tourze\JsonRPCCacheBundle\Procedure\CacheableProcedure;
 use WechatMiniProgramShareBundle\WechatMiniProgramShareBundle;
 
-#[MethodTag('微信小程序')]
-#[MethodDoc('获取微信小程序页面分享路径参数', '在这个接口里，我们额外为所有路径增加一个分享渠道参数，用于记录分享轨迹')]
-#[MethodExpose('GetWechatMiniProgramPageShareConfig')]
+#[MethodTag(name: '微信小程序')]
+#[MethodDoc(summary: '获取微信小程序页面分享路径参数', description: '在这个接口里，我们额外为所有路径增加一个分享渠道参数，用于记录分享轨迹')]
+#[MethodExpose(method: 'GetWechatMiniProgramPageShareConfig')]
 class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
 {
-    #[MethodParam('当前页面路径')]
+    #[MethodParam(description: '当前页面路径')]
     public string $path;
 
     /**
      * @var array<string, mixed>
      */
-    #[MethodParam('当前页面参数')]
+    #[MethodParam(description: '当前页面参数')]
     public array $params = [];
 
     /**
      * @var array<string, mixed>
      */
-    #[MethodParam('记录的是默认的分享配置')]
+    #[MethodParam(description: '记录的是默认的分享配置')]
     public array $config = [];
 
     public function __construct(

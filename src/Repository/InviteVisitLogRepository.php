@@ -8,7 +8,7 @@ use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
 
 /**
  * @extends ServiceEntityRepository<InviteVisitLog>
- * 
+ *
  * @method InviteVisitLog|null find($id, $lockMode = null, $lockVersion = null)
  * @method InviteVisitLog|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method InviteVisitLog[]    findAll()

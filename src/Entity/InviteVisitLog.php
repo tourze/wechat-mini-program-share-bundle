@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
 use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
-use Tourze\DoctrineSnowflakeBundle\Service\SnowflakeIdGenerator;
+use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use WechatMiniProgramBundle\Entity\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
 
@@ -17,12 +17,7 @@ use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
 class InviteVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
-
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(SnowflakeIdGenerator::class)]
-    #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['comment' => 'ID'])]
-    private ?string $id = null;
+    use SnowflakeKeyAware;
 
     /**
      * @var array<string, mixed>|null
@@ -65,10 +60,6 @@ class InviteVisitLog implements \Stringable
     #[UpdateIpColumn]
     private ?string $updatedFromIp = null;
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
 
     /**
      * @return array<string, mixed>|null
@@ -216,6 +207,6 @@ class InviteVisitLog implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('InviteVisitLog[%s]', $this->id ?: 'new');
+        return sprintf('InviteVisitLog[%s]', $this->id ?? 'new');
     }
 }
