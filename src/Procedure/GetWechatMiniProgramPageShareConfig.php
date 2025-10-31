@@ -56,7 +56,7 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
 
         $path = $config['path'];
 
-        if ($user !== null) {
+        if (null !== $user) {
             // 使用用户标识符而不是ID，因为UserInterface不保证有getId()方法
             $value = $this->hashids->encode($user->getUserIdentifier(), CarbonImmutable::now()->getTimestamp());
 
@@ -65,10 +65,10 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
             if (false === $parts) {
                 $parts = [];
             }
-            $queryStr = isset($parts['query']) ? $parts['query'] : '';
+            $queryStr = $parts['query'] ?? '';
             parse_str($queryStr, $queryArray);
             $queryArray[WechatMiniProgramShareBundle::PARAM_KEY] = $value;
-            $pathPart = isset($parts['path']) ? $parts['path'] : '';
+            $pathPart = $parts['path'] ?? '';
             $path = $pathPart . '?' . http_build_query($queryArray);
 
             $config['path'] = $path;
@@ -80,11 +80,16 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     public function getCacheKey(JsonRpcRequest $request): string
     {
         // 如果已经登录了，那我们就不走缓存
-        if ($this->security->getUser() !== null) {
+        if (null !== $this->security->getUser()) {
             return '';
         }
 
-        return static::buildParamCacheKey($request->getParams());
+        $params = $request->getParams();
+        if (null === $params) {
+            return '';
+        }
+
+        return static::buildParamCacheKey($params);
     }
 
     public function getCacheDuration(JsonRpcRequest $request): int
@@ -93,10 +98,10 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     }
 
     /**
-     * @return iterable<string|null>
+     * @return iterable<string>
      */
     public function getCacheTags(JsonRpcRequest $request): iterable
     {
-        yield null;
+        return [];
     }
 }

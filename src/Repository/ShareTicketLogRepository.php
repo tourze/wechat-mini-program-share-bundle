@@ -4,16 +4,13 @@ namespace WechatMiniProgramShareBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatMiniProgramShareBundle\Entity\ShareTicketLog;
 
 /**
  * @extends ServiceEntityRepository<ShareTicketLog>
- *
- * @method ShareTicketLog|null find($id, $lockMode = null, $lockVersion = null)
- * @method ShareTicketLog|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
- * @method ShareTicketLog[]    findAll()
- * @method ShareTicketLog[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
  */
+#[AsRepository(entityClass: ShareTicketLog::class)]
 class ShareTicketLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,18 +18,39 @@ class ShareTicketLogRepository extends ServiceEntityRepository
         parent::__construct($registry, ShareTicketLog::class);
     }
 
+    public function save(ShareTicketLog $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ShareTicketLog $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     /**
-     * @return ShareTicketLog[]
+     * @return list<ShareTicketLog>
      */
     public function findByValidTrue(): array
     {
-        /** @var ShareTicketLog[] $result */
-        $result = $this->createQueryBuilder('s')
-            ->andWhere('s.valid = :valid')
-            ->setParameter('valid', true)
+        $queryResult = $this->createQueryBuilder('s')
             ->getQuery()
-            ->getResult();
-        
-        return $result;
+            ->getResult()
+        ;
+
+        if (!is_array($queryResult)) {
+            return [];
+        }
+
+        /** @var list<ShareTicketLog> */
+        return array_values(array_filter($queryResult, static fn ($item): bool => $item instanceof ShareTicketLog));
     }
 }

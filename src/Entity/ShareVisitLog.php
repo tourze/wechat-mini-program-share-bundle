@@ -5,7 +5,9 @@ namespace WechatMiniProgramShareBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
+use Tourze\DoctrineIpBundle\Traits\CreatedFromIpAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use WechatMiniProgramBundle\Entity\LaunchOptionsAware;
 use WechatMiniProgramBundle\Enum\EnvVersion;
@@ -17,41 +19,40 @@ class ShareVisitLog implements \Stringable
 {
     use LaunchOptionsAware;
     use SnowflakeKeyAware;
+    use CreatedFromIpAware;
 
     #[ORM\ManyToOne(targetEntity: ShareCode::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?ShareCode $code = null;
 
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: true, enumType: EnvVersion::class, options: ['comment' => '环境版本'])]
+    #[Assert\Type(type: EnvVersion::class)]
+    #[Assert\Choice(callback: [EnvVersion::class, 'cases'])]
     private ?EnvVersion $envVersion = null;
 
     /**
      * @var array<string, mixed>
      */
     #[ORM\Column(type: Types::JSON, options: ['comment' => '字段说明'])]
+    #[Assert\Type(type: 'array')]
     private array $response = [];
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?UserInterface $user = null;
 
-    #[ORM\Column(length: 45, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
     #[IndexColumn]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '创建时间'])]
     private ?\DateTimeImmutable $createTime = null;
-
 
     public function getEnvVersion(): ?EnvVersion
     {
         return $this->envVersion;
     }
 
-    public function setEnvVersion(?EnvVersion $envVersion): self
+    public function setEnvVersion(?EnvVersion $envVersion): void
     {
         $this->envVersion = $envVersion;
-
-        return $this;
     }
 
     public function getCode(): ?ShareCode
@@ -59,11 +60,9 @@ class ShareVisitLog implements \Stringable
         return $this->code;
     }
 
-    public function setCode(?ShareCode $code): self
+    public function setCode(?ShareCode $code): void
     {
         $this->code = $code;
-
-        return $this;
     }
 
     /**
@@ -77,11 +76,9 @@ class ShareVisitLog implements \Stringable
     /**
      * @param array<string, mixed> $response
      */
-    public function setResponse(array $response): self
+    public function setResponse(array $response): void
     {
         $this->response = $response;
-
-        return $this;
     }
 
     public function getUser(): ?UserInterface
@@ -89,28 +86,14 @@ class ShareVisitLog implements \Stringable
         return $this->user;
     }
 
-    public function setUser(?UserInterface $user): self
+    public function setUser(?UserInterface $user): void
     {
         $this->user = $user;
-
-        return $this;
     }
 
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setCreatedFromIp(?string $createdFromIp): void
-    {
-        $this->createdFromIp = $createdFromIp;
-    }
-
-    public function setCreateTime(?\DateTimeImmutable $createdAt): self
+    public function setCreateTime(?\DateTimeImmutable $createdAt): void
     {
         $this->createTime = $createdAt;
-
-        return $this;
     }
 
     public function getCreateTime(): ?\DateTimeImmutable

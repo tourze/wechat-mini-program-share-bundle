@@ -3,15 +3,18 @@
 namespace WechatMiniProgramShareBundle\EventSubscriber;
 
 use Hashids\Hashids;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService as DoctrineService;
+use WechatMiniProgramAuthBundle\Entity\User;
 use WechatMiniProgramAuthBundle\Event\CodeToSessionResponseEvent;
-use WechatMiniProgramAuthBundle\Repository\UserRepository;
+use WechatMiniProgramAuthBundle\Service\UserTransformService;
 use WechatMiniProgramBundle\Event\LaunchOptionsAware;
 use WechatMiniProgramBundle\Service\LaunchOptionHelper;
 use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
@@ -22,120 +25,47 @@ use Yiisoft\Arrays\ArrayHelper;
 /**
  * 邀请和受邀的信息记录
  */
-class InviteVisitSubscriber
+#[WithMonologChannel(channel: 'wechat_mini_program_share')]
+readonly class InviteVisitSubscriber
 {
     public function __construct(
-        private readonly DoctrineService $doctrineService,
-        private readonly UserLoaderInterface $userLoader,
-        private readonly UserRepository $userRepository,
-        private readonly LoggerInterface $logger,
-        #[Autowire(service: 'wechat-mini-program-share.hashids')] private readonly Hashids $hashids,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LaunchOptionHelper $launchOptionHelper,
+        private DoctrineService $doctrineService,
+        private UserLoaderInterface $userLoader,
+        private UserTransformService $userTransformService,
+        private LoggerInterface $logger,
+        #[Autowire(service: 'wechat-mini-program-share.hashids')] private Hashids $hashids,
+        private EventDispatcherInterface $eventDispatcher,
+        private LaunchOptionHelper $launchOptionHelper,
     ) {
     }
 
     #[AsEventListener]
     public function onCodeToSessionRequest(CodeToSessionResponseEvent $event): void
     {
-        // 没有带参数的话，不处理
         $query = $this->launchOptionHelper->parseEvent($event)->getAttributes();
         if (!isset($query[WechatMiniProgramShareBundle::PARAM_KEY])) {
-            $this->logger->warning('找不到必要的参数，不处理', [
-                'query' => $query,
-            ]);
+            $this->logger->warning('找不到必要的参数，不处理', ['query' => $query]);
 
             return;
         }
 
-        $param = $query[WechatMiniProgramShareBundle::PARAM_KEY];
-        $decoded = [];
-        try {
-            if (is_string($param)) {
-                $decoded = $this->hashids->decode($param);
-            }
-        } catch (\Throwable $exception) {
-        }
-        if (empty($decoded)) {
-            // 兼容一次
-            if (is_string($param)) {
-                $decoded = explode(',', $param);
-            }
-        }
-
-        $this->logger->info('获取邀请分享参数', [
-            'param' => $param,
-            'decoded' => $decoded,
-            'event' => $event,
-        ]);
-        if (2 !== count($decoded)) {
-            $this->logger->warning('解密数据格式不一致', [
-                'decoded' => $decoded,
-            ]);
-
+        $decoded = $this->decodeShareParam($query[WechatMiniProgramShareBundle::PARAM_KEY]);
+        if (null === $decoded) {
             return;
         }
 
-        $bizUser = $this->userLoader->loadUserByIdentifier((string) $decoded[0]);
-        if ($bizUser === null) {
-            $this->logger->warning('查找不到BizUser', [
-                'decoded' => $decoded,
-            ]);
-
+        $users = $this->loadUsers($decoded);
+        if (null === $users) {
             return;
         }
 
-        $wechatUser = $this->userRepository->transformToWechatUser($bizUser);
-        if ($wechatUser === null) {
-            $this->logger->warning('查找不到小程序User', [
-                'decoded' => $decoded,
-            ]);
-
+        [$bizUser, $wechatUser] = $users;
+        $log = $this->createInviteVisitLog($event, $bizUser, $wechatUser, $decoded);
+        if (null === $log) {
             return;
         }
 
-        $log = new InviteVisitLog();
-
-        $log->setShareOpenId($wechatUser->getOpenId());
-        $log->setVisitOpenId($event->getWechatUser()->getOpenId());
-
-        if ($log->getShareOpenId() === $log->getVisitOpenId()) {
-            $this->logger->warning('分享人是不能邀请自己的', [
-                'shareOpenId' => $log->getShareOpenId(),
-                'visitOpenId' => $log->getVisitOpenId(),
-            ]);
-
-            return;
-        }
-
-        $log->setLaunchOptions($event->getLaunchOptions());
-        $log->setEnterOptions($event->getEnterOptions());
-
-        $log->setShareUser($bizUser);
-        $shareTime = \DateTimeImmutable::createFromFormat('U', (string) $decoded[1]);
-        if (false === $shareTime) {
-            $shareTime = new \DateTimeImmutable();
-        }
-        $log->setShareTime($shareTime);
-
-        $log->setVisitTime(new \DateTimeImmutable());
-        $log->setVisitPath($this->findPath($event));
-        $log->setVisitUser($event->getBizUser());
-        $log->setNewUser($event->isNewUser());
-
-        try {
-            $this->doctrineService->asyncInsert($log);
-
-            // 派发事件
-            $event = new InviteUserEvent();
-            $event->setInviteVisitLog($log);
-            $this->eventDispatcher->dispatch($event);
-        } catch (\Throwable $exception) {
-            $this->logger->error('保存邀请访问记录时出错', [
-                'exception' => $exception,
-                'log' => $log,
-            ]);
-        }
+        $this->saveLogAndDispatchEvent($log);
     }
 
     /**
@@ -143,7 +73,7 @@ class InviteVisitSubscriber
      */
     private function findPath(Event $event): string
     {
-        if (!in_array(LaunchOptionsAware::class, class_uses($event))) {
+        if (!in_array(LaunchOptionsAware::class, class_uses($event), true)) {
             return '';
         }
 
@@ -153,7 +83,7 @@ class InviteVisitSubscriber
         }
 
         $options = $event->getEnterOptions();
-        if (empty($options)) {
+        if (null === $options || [] === $options || '' === $options) {
             $options = $event->getLaunchOptions();
         }
 
@@ -167,6 +97,116 @@ class InviteVisitSubscriber
         $queryData = ArrayHelper::getValue($options, 'query');
         $query = is_array($queryData) ? http_build_query($queryData) : '';
 
-        return $path . (empty($query) ? '' : "?{$query}");
+        return $path . ('' === $query ? '' : "?{$query}");
+    }
+
+    /**
+     * @return array{string|int, int}|null
+     */
+    private function decodeShareParam(mixed $param): ?array
+    {
+        $decoded = [];
+        try {
+            if (is_string($param)) {
+                $decoded = $this->hashids->decode($param);
+            }
+        } catch (\Throwable $exception) {
+        }
+
+        if ([] === $decoded && is_string($param)) {
+            $decoded = explode(',', $param);
+        }
+
+        $this->logger->info('获取邀请分享参数', ['param' => $param, 'decoded' => $decoded]);
+
+        if (2 !== count($decoded)) {
+            $this->logger->warning('解密数据格式不一致', ['decoded' => $decoded]);
+
+            return null;
+        }
+
+        return [$decoded[0], (int) $decoded[1]];
+    }
+
+    /**
+     * @param array{string|int, int} $decoded
+     *
+     * @return array{UserInterface, User}|null
+     */
+    private function loadUsers(array $decoded): ?array
+    {
+        $bizUser = $this->userLoader->loadUserByIdentifier((string) $decoded[0]);
+        if (null === $bizUser) {
+            $this->logger->warning('查找不到BizUser', ['decoded' => $decoded]);
+
+            return null;
+        }
+
+        $wechatUser = $this->userTransformService->transformToWechatUser($bizUser);
+        if (null === $wechatUser) {
+            $this->logger->warning('查找不到小程序User', ['decoded' => $decoded]);
+
+            return null;
+        }
+
+        return [$bizUser, $wechatUser];
+    }
+
+    /**
+     * @param array{string|int, int} $decoded
+     */
+    private function createInviteVisitLog(
+        CodeToSessionResponseEvent $event,
+        UserInterface $bizUser,
+        User $wechatUser,
+        array $decoded,
+    ): ?InviteVisitLog {
+        $shareOpenId = $wechatUser->getOpenId();
+        $visitOpenId = $event->getWechatUser()->getOpenId();
+
+        if ($shareOpenId === $visitOpenId) {
+            $this->logger->warning('分享人是不能邀请自己的', [
+                'shareOpenId' => $shareOpenId,
+                'visitOpenId' => $visitOpenId,
+            ]);
+
+            return null;
+        }
+
+        $log = new InviteVisitLog();
+        $log->setShareOpenId($shareOpenId);
+        $log->setVisitOpenId($visitOpenId);
+        $log->setLaunchOptions($event->getLaunchOptions());
+        $log->setEnterOptions($event->getEnterOptions());
+        $log->setShareUser($bizUser);
+
+        $shareTime = \DateTimeImmutable::createFromFormat('U', (string) $decoded[1]);
+        if (false === $shareTime) {
+            $shareTime = new \DateTimeImmutable();
+        }
+        $log->setShareTime($shareTime);
+
+        $log->setVisitTime(new \DateTimeImmutable());
+        $log->setVisitPath($this->findPath($event));
+        $log->setVisitUser($event->getBizUser());
+        $log->setNewUser($event->isNewUser());
+
+        return $log;
+    }
+
+    private function saveLogAndDispatchEvent(InviteVisitLog $log): void
+    {
+        try {
+            $this->doctrineService->asyncInsert($log);
+
+            $event = new InviteUserEvent();
+            $event->setInviteVisitLog($log);
+            $this->eventDispatcher->dispatch($event);
+        } catch (\Throwable $exception) {
+            $this->logger->error('保存邀请访问记录时出错', [
+                'exception' => $exception,
+                'log' => $log,
+            ]);
+        }
     }
 }

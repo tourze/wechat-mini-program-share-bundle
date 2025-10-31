@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  # DataFixtures services for development environment
+  WechatMiniProgramShareBundle\DataFixtures\:
+    resource: '../../DataFixtures/*'
+    tags: ['doctrine.fixture.orm']
+    autoconfigure: true
+    public: true

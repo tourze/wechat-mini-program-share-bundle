@@ -6,8 +6,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineUserBundle\Traits\BlameableAware;
 use WechatMiniProgramBundle\Entity\Account;
@@ -21,41 +21,49 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 #[ORM\Table(name: 'wechat_mini_program_share_code', options: ['comment' => '分享码'])]
 class ShareCode implements \Stringable
 {
+    use IpTraceableAware;
     use TimestampableAware;
     use BlameableAware;
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
     #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Account $account = null;
 
+    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true, options: ['comment' => '链接地址'])]
+    #[Assert\Url]
+    #[Assert\Length(max: 2000)]
     private ?string $linkUrl = null;
 
+    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true, options: ['comment' => '图片地址'])]
     #[Groups(groups: ['restful_read'])]
+    #[Assert\Url]
+    #[Assert\Length(max: 2000)]
     private ?string $imageUrl = null;
 
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: true, enumType: EnvVersion::class, options: ['comment' => '环境版本'])]
+    #[Assert\Type(type: EnvVersion::class)]
+    #[Assert\Choice(callback: [EnvVersion::class, 'cases'])]
     private ?EnvVersion $envVersion = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '是否有效', 'default' => 1])]
+    #[Assert\Type(type: 'bool')]
     private ?bool $valid = null;
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?UserInterface $user = null;
 
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '大小'])]
+    #[Assert\Type(type: 'int')]
+    #[Assert\PositiveOrZero]
     private ?int $size = null;
 
-    #[CreateIpColumn]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    private ?string $updatedFromIp = null;
-
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -65,11 +73,9 @@ class ShareCode implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(?Account $account): self
+    public function setAccount(?Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getLinkUrl(): ?string
@@ -77,11 +83,9 @@ class ShareCode implements \Stringable
         return $this->linkUrl;
     }
 
-    public function setLinkUrl(string $linkUrl): self
+    public function setLinkUrl(string $linkUrl): void
     {
         $this->linkUrl = $linkUrl;
-
-        return $this;
     }
 
     public function getEnvVersion(): ?EnvVersion
@@ -89,11 +93,9 @@ class ShareCode implements \Stringable
         return $this->envVersion;
     }
 
-    public function setEnvVersion(?EnvVersion $envVersion): self
+    public function setEnvVersion(?EnvVersion $envVersion): void
     {
         $this->envVersion = $envVersion;
-
-        return $this;
     }
 
     public function isValid(): ?bool
@@ -101,11 +103,9 @@ class ShareCode implements \Stringable
         return $this->valid;
     }
 
-    public function setValid(?bool $valid): self
+    public function setValid(?bool $valid): void
     {
         $this->valid = $valid;
-
-        return $this;
     }
 
     public function getImageUrl(): ?string
@@ -113,11 +113,9 @@ class ShareCode implements \Stringable
         return $this->imageUrl;
     }
 
-    public function setImageUrl(?string $imageUrl): self
+    public function setImageUrl(?string $imageUrl): void
     {
         $this->imageUrl = $imageUrl;
-
-        return $this;
     }
 
     public function getUser(): ?UserInterface
@@ -125,11 +123,9 @@ class ShareCode implements \Stringable
         return $this->user;
     }
 
-    public function setUser(?UserInterface $user): self
+    public function setUser(?UserInterface $user): void
     {
         $this->user = $user;
-
-        return $this;
     }
 
     public function getSize(): ?int
@@ -137,38 +133,13 @@ class ShareCode implements \Stringable
         return $this->size;
     }
 
-    public function setSize(int $size): self
+    public function setSize(int $size): void
     {
         $this->size = $size;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
     }
 
     public function __toString(): string
     {
-        return sprintf('ShareCode[%s]', $this->id ?? 'new');
-    }}
+        return sprintf('ShareCode[%s]', 0 === $this->id ? 'new' : $this->id);
+    }
+}

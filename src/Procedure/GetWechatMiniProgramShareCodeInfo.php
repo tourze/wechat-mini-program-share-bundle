@@ -16,11 +16,8 @@ use WechatMiniProgramBundle\Procedure\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Entity\ShareVisitLog;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 
-/**
- * 这个接口是给中转页调用的，前端需要确认起码 code2session流程跑完了
- */
 #[MethodTag(name: '微信小程序')]
-#[MethodDoc(summary: '获取分享码详情')]
+#[MethodDoc(summary: '获取启动分享码详情', description: '这个接口是给中转页调用的，前端需要确认起码 code2session 流程跑完了')]
 #[MethodExpose(method: 'GetWechatMiniProgramShareCodeInfo')]
 #[WithMonologChannel(channel: 'procedure')]
 class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
@@ -44,7 +41,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
     public function execute(): array
     {
         $code = $this->codeRepository->find($this->id);
-        if ($code === null) {
+        if (null === $code) {
             throw new ApiException('找不到分享码');
         }
 
@@ -57,7 +54,7 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         $log->setEnvVersion($code->getEnvVersion());
         $log->setLaunchOptions($this->launchOptions);
         $log->setEnterOptions($this->enterOptions);
-        if ($this->security->getUser() !== null) {
+        if (null !== $this->security->getUser()) {
             $log->setUser($this->security->getUser());
         }
 
@@ -70,28 +67,8 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         $url = "/{$url}";
 
         $log->setResponse([
-            '__redirectTo' => [
-                'url' => $url,
-            ],
+            'url' => $url,
         ]);
-
-        $tabPages = [
-            '/pages/index/index',
-            '/pages/block/block',
-            '/pages/validate/validate',
-            '/pages/myCenter/myCenter',
-            '/pages/my/index',
-        ];
-        foreach ($tabPages as $tabPage) {
-            if (str_starts_with($url, $tabPage)) {
-                $log->setResponse([
-                    '__reLaunch' => [
-                        'url' => $url,
-                    ],
-                ]);
-                break;
-            }
-        }
 
         try {
             $this->doctrineService->asyncInsert($log);

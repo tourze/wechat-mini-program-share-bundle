@@ -1,0 +1,7 @@
+<pre style="background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 10px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', Consolas, monospace; font-size: 12px; line-height: 1.4; color: #333; max-height: 500px; overflow-y: auto;">
+{% if value is iterable %}
+    {{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE')) }}
+{% else %}
+    {{ value }}
+{% endif %}
+</pre>

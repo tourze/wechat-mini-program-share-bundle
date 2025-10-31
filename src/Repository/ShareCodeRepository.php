@@ -4,16 +4,13 @@ namespace WechatMiniProgramShareBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatMiniProgramShareBundle\Entity\ShareCode;
 
 /**
  * @extends ServiceEntityRepository<ShareCode>
- *
- * @method ShareCode|null find($id, $lockMode = null, $lockVersion = null)
- * @method ShareCode|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
- * @method ShareCode[]    findAll()
- * @method ShareCode[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
  */
+#[AsRepository(entityClass: ShareCode::class)]
 class ShareCodeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,18 +18,41 @@ class ShareCodeRepository extends ServiceEntityRepository
         parent::__construct($registry, ShareCode::class);
     }
 
+    public function save(ShareCode $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ShareCode $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     /**
-     * @return ShareCode[]
+     * @return list<ShareCode>
      */
     public function findByValidTrue(): array
     {
-        /** @var ShareCode[] $result */
-        $result = $this->createQueryBuilder('s')
+        $queryResult = $this->createQueryBuilder('s')
             ->andWhere('s.valid = :valid')
             ->setParameter('valid', true)
             ->getQuery()
-            ->getResult();
-        
-        return $result;
+            ->getResult()
+        ;
+
+        if (!is_array($queryResult)) {
+            return [];
+        }
+
+        /** @var list<ShareCode> */
+        return array_values(array_filter($queryResult, static fn ($item): bool => $item instanceof ShareCode));
     }
 }

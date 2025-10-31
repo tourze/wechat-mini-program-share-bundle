@@ -5,9 +5,9 @@ namespace WechatMiniProgramShareBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineIpBundle\Attribute\UpdateIpColumn;
+use Tourze\DoctrineIpBundle\Traits\IpTraceableAware;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
 use WechatMiniProgramBundle\Entity\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
@@ -16,6 +16,7 @@ use WechatMiniProgramShareBundle\Repository\InviteVisitLogRepository;
 #[ORM\Table(name: 'wechat_mini_program_invite_visit_log', options: ['comment' => '邀请访问记录'])]
 class InviteVisitLog implements \Stringable
 {
+    use IpTraceableAware;
     use LaunchOptionsAware;
     use SnowflakeKeyAware;
 
@@ -23,9 +24,13 @@ class InviteVisitLog implements \Stringable
      * @var array<string, mixed>|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '上下文'])]
+    #[Assert\Type(type: 'array')]
     private ?array $context = [];
 
+    #[ORM\Column(type: Types::STRING, length: 255, options: ['comment' => '分享者openId'])]
     #[IndexColumn]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $shareOpenId = null;
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
@@ -33,33 +38,36 @@ class InviteVisitLog implements \Stringable
     private ?UserInterface $shareUser = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '分享时间'])]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $shareTime = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, options: ['comment' => '访问者openId'])]
     #[IndexColumn]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $visitOpenId = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '受邀时间'])]
+    #[Assert\NotNull]
     private ?\DateTimeImmutable $visitTime = null;
 
     #[ORM\Column(type: Types::STRING, length: 2000, options: ['comment' => '访问地址'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 2000)]
     private ?string $visitPath = null;
 
     #[ORM\ManyToOne(targetEntity: UserInterface::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?UserInterface $visitUser = null;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['comment' => '是否为新用户', 'default' => false])]
     #[IndexColumn]
+    #[Assert\Type(type: 'bool')]
     private bool $newUser = false;
 
     #[ORM\Column(nullable: true, options: ['comment' => '是否已注册', 'default' => 0])]
+    #[Assert\Type(type: 'bool')]
     private ?bool $registered = null;
-
-    #[CreateIpColumn]
-    private ?string $createdFromIp = null;
-
-    #[UpdateIpColumn]
-    private ?string $updatedFromIp = null;
-
 
     /**
      * @return array<string, mixed>|null
@@ -72,11 +80,9 @@ class InviteVisitLog implements \Stringable
     /**
      * @param array<string, mixed>|null $context
      */
-    public function setContext(?array $context): self
+    public function setContext(?array $context): void
     {
         $this->context = $context;
-
-        return $this;
     }
 
     public function getShareOpenId(): ?string
@@ -84,11 +90,9 @@ class InviteVisitLog implements \Stringable
         return $this->shareOpenId;
     }
 
-    public function setShareOpenId(string $shareOpenId): self
+    public function setShareOpenId(string $shareOpenId): void
     {
         $this->shareOpenId = $shareOpenId;
-
-        return $this;
     }
 
     public function getShareTime(): ?\DateTimeImmutable
@@ -96,11 +100,9 @@ class InviteVisitLog implements \Stringable
         return $this->shareTime;
     }
 
-    public function setShareTime(\DateTimeImmutable $shareTime): self
+    public function setShareTime(\DateTimeImmutable $shareTime): void
     {
         $this->shareTime = $shareTime;
-
-        return $this;
     }
 
     public function getVisitOpenId(): ?string
@@ -108,11 +110,9 @@ class InviteVisitLog implements \Stringable
         return $this->visitOpenId;
     }
 
-    public function setVisitOpenId(string $visitOpenId): self
+    public function setVisitOpenId(string $visitOpenId): void
     {
         $this->visitOpenId = $visitOpenId;
-
-        return $this;
     }
 
     public function getVisitTime(): ?\DateTimeImmutable
@@ -120,11 +120,9 @@ class InviteVisitLog implements \Stringable
         return $this->visitTime;
     }
 
-    public function setVisitTime(\DateTimeImmutable $visitTime): self
+    public function setVisitTime(\DateTimeImmutable $visitTime): void
     {
         $this->visitTime = $visitTime;
-
-        return $this;
     }
 
     public function getVisitPath(): ?string
@@ -132,11 +130,9 @@ class InviteVisitLog implements \Stringable
         return $this->visitPath;
     }
 
-    public function setVisitPath(string $visitPath): self
+    public function setVisitPath(string $visitPath): void
     {
         $this->visitPath = $visitPath;
-
-        return $this;
     }
 
     public function isNewUser(): bool
@@ -174,35 +170,9 @@ class InviteVisitLog implements \Stringable
         return $this->registered;
     }
 
-    public function setRegistered(?bool $registered): self
+    public function setRegistered(?bool $registered): void
     {
         $this->registered = $registered;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setCreatedFromIp(?string $createdFromIp): self
-    {
-        $this->createdFromIp = $createdFromIp;
-
-        return $this;
-    }
-
-    public function getUpdatedFromIp(): ?string
-    {
-        return $this->updatedFromIp;
-    }
-
-    public function setUpdatedFromIp(?string $updatedFromIp): self
-    {
-        $this->updatedFromIp = $updatedFromIp;
-
-        return $this;
     }
 
     public function __toString(): string

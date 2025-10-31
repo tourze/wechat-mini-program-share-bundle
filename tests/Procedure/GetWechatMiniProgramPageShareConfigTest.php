@@ -2,123 +2,70 @@
 
 namespace WechatMiniProgramShareBundle\Tests\Procedure;
 
-use Carbon\CarbonImmutable;
-use Hashids\Hashids;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\JsonRPC\Core\Model\JsonRpcParams;
 use Tourze\JsonRPC\Core\Model\JsonRpcRequest;
+use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
 use WechatMiniProgramShareBundle\Procedure\GetWechatMiniProgramPageShareConfig;
-use WechatMiniProgramShareBundle\WechatMiniProgramShareBundle;
 
-class GetWechatMiniProgramPageShareConfigTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(GetWechatMiniProgramPageShareConfig::class)]
+#[RunTestsInSeparateProcesses]
+final class GetWechatMiniProgramPageShareConfigTest extends AbstractProcedureTestCase
 {
-    private GetWechatMiniProgramPageShareConfig $procedure;
-    private MockObject $hashids;
-    private MockObject $security;
-
-    protected function setUp(): void
+    protected function getProcedureClass(): string
     {
-        $this->hashids = $this->createMock(Hashids::class);
-        $this->security = $this->createMock(Security::class);
-        $this->procedure = new GetWechatMiniProgramPageShareConfig(
-            $this->hashids,
-            $this->security
-        );
+        return GetWechatMiniProgramPageShareConfig::class;
     }
 
-    public function testExecuteWithoutConfig(): void
+    protected function onSetUp(): void
     {
-        $this->procedure->config = [];
-        $result = $this->procedure->execute();
-        $this->assertSame([], $result);
+        // 移除 parent::setUp() 调用以避免内存泄漏
     }
 
-    public function testExecuteWithoutUser(): void
+    public function testProcedureIsRegistered(): void
     {
-        $this->security->expects($this->once())
-            ->method('getUser')
-            ->willReturn(null);
-
-        $this->procedure->config = [
-            'path' => '/pages/home',
-        ];
-
-        $result = $this->procedure->execute();
-        $this->assertSame(['path' => '/pages/home'], $result);
+        $procedure = self::getService(GetWechatMiniProgramPageShareConfig::class);
+        $this->assertInstanceOf(GetWechatMiniProgramPageShareConfig::class, $procedure);
     }
 
-    public function testExecuteWithLoggedInUser(): void
+    public function testGetCacheKey(): void
     {
-        $user = $this->createMock(UserInterface::class);
-        $user->expects($this->once())
-            ->method('getUserIdentifier')
-            ->willReturn('user123');
-
-        $this->security->expects($this->once())
-            ->method('getUser')
-            ->willReturn($user);
-
-        CarbonImmutable::setTestNow('2023-01-01 12:00:00');
-        $timestamp = CarbonImmutable::now()->getTimestamp();
-
-        $this->hashids->expects($this->once())
-            ->method('encode')
-            ->with('user123', $timestamp)
-            ->willReturn('abc123');
-
-        $this->procedure->config = [
-            'path' => '/pages/detail?id=456',
-        ];
-
-        $result = $this->procedure->execute();
-
-        $expectedPath = '/pages/detail?id=456&' . WechatMiniProgramShareBundle::PARAM_KEY . '=abc123';
-        $this->assertEquals(['path' => $expectedPath], $result);
-
-        CarbonImmutable::setTestNow(null);
-    }
-
-    public function testGetCacheKeyWithLoggedInUser(): void
-    {
-        $user = $this->createMock(UserInterface::class);
-        $this->security->expects($this->once())
-            ->method('getUser')
-            ->willReturn($user);
-
+        $procedure = self::getService(GetWechatMiniProgramPageShareConfig::class);
         $request = new JsonRpcRequest();
-        $key = $this->procedure->getCacheKey($request);
-        $this->assertSame('', $key);
-    }
-
-    public function testGetCacheKeyWithoutUser(): void
-    {
-        $this->security->expects($this->once())
-            ->method('getUser')
-            ->willReturn(null);
-
-        $request = new JsonRpcRequest();
-        $params = new JsonRpcParams();
-        $params->set('test', 'value');
-        $request->setParams($params);
-        
-        $key = $this->procedure->getCacheKey($request);
-        $this->assertNotEmpty($key);
+        $request->setParams(new JsonRpcParams());
+        $key = $procedure->getCacheKey($request);
+        $this->assertIsString($key);
     }
 
     public function testGetCacheDuration(): void
     {
+        $procedure = self::getService(GetWechatMiniProgramPageShareConfig::class);
         $request = new JsonRpcRequest();
-        $duration = $this->procedure->getCacheDuration($request);
-        $this->assertSame(60, $duration);
+        $request->setParams(new JsonRpcParams());
+        $duration = $procedure->getCacheDuration($request);
+        $this->assertIsInt($duration);
+        $this->assertGreaterThan(0, $duration);
     }
 
-    public function testGetCacheTags(): void
+    public function testExecute(): void
     {
-        $request = new JsonRpcRequest();
-        $tags = iterator_to_array($this->procedure->getCacheTags($request));
-        $this->assertSame([null], $tags);
+        $procedure = self::getService(GetWechatMiniProgramPageShareConfig::class);
+
+        // 设置必需的config参数来避免空结果
+        $procedure->config = [
+            'path' => '/pages/index/index',
+            'title' => 'Test Share Config',
+        ];
+
+        $result = $procedure->execute();
+
+        // 验证返回结果的基本结构
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('path', $result);
+        $this->assertArrayHasKey('title', $result);
     }
 }

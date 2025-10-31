@@ -2,11 +2,38 @@
 
 namespace WechatMiniProgramShareBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
 
-class InviteVisitLogTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(InviteVisitLog::class)]
+final class InviteVisitLogTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new InviteVisitLog();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            'shareOpenId' => ['shareOpenId', 'test_share_id'],
+            'visitOpenId' => ['visitOpenId', 'test_visit_id'],
+            'visitPath' => ['visitPath', '/pages/index'],
+            'newUser' => ['newUser', true],
+            'shareTime' => ['shareTime', new \DateTimeImmutable()],
+            'visitTime' => ['visitTime', new \DateTimeImmutable()],
+            'launchOptions' => ['launchOptions', ['key' => 'value']],
+            'enterOptions' => ['enterOptions', ['key' => 'value']],
+        ];
+    }
+
     public function testGetterSetter(): void
     {
         $log = new InviteVisitLog();
@@ -18,7 +45,7 @@ class InviteVisitLogTest extends TestCase
         $log->setVisitTime(new \DateTimeImmutable('2023-01-02 00:00:00'));
         $log->setLaunchOptions(['foo' => 'bar']);
         $log->setEnterOptions(['bar' => 'baz']);
-        
+
         $this->assertEquals('share_openid', $log->getShareOpenId());
         $this->assertEquals('visit_openid', $log->getVisitOpenId());
         $this->assertEquals('/pages/index', $log->getVisitPath());
@@ -40,7 +67,7 @@ class InviteVisitLogTest extends TestCase
         $log->setRegistered(false);
         $log->setLaunchOptions([]);
         $log->setEnterOptions([]);
-        
+
         $this->assertEquals('', $log->getShareOpenId());
         $this->assertEquals('', $log->getVisitOpenId());
         $this->assertEquals('', $log->getVisitPath());

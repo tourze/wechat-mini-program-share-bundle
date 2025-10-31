@@ -4,16 +4,13 @@ namespace WechatMiniProgramShareBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatMiniProgramShareBundle\Entity\ShareVisitLog;
 
 /**
  * @extends ServiceEntityRepository<ShareVisitLog>
- *
- * @method ShareVisitLog|null find($id, $lockMode = null, $lockVersion = null)
- * @method ShareVisitLog|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
- * @method ShareVisitLog[]    findAll()
- * @method ShareVisitLog[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
  */
+#[AsRepository(entityClass: ShareVisitLog::class)]
 class ShareVisitLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,18 +18,39 @@ class ShareVisitLogRepository extends ServiceEntityRepository
         parent::__construct($registry, ShareVisitLog::class);
     }
 
+    public function save(ShareVisitLog $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ShareVisitLog $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     /**
-     * @return ShareVisitLog[]
+     * @return list<ShareVisitLog>
      */
     public function findByValidTrue(): array
     {
-        /** @var ShareVisitLog[] $result */
-        $result = $this->createQueryBuilder('s')
-            ->andWhere('s.valid = :valid')
-            ->setParameter('valid', true)
+        $queryResult = $this->createQueryBuilder('s')
             ->getQuery()
-            ->getResult();
-        
-        return $result;
+            ->getResult()
+        ;
+
+        if (!is_array($queryResult)) {
+            return [];
+        }
+
+        /** @var list<ShareVisitLog> */
+        return array_values(array_filter($queryResult, static fn ($item): bool => $item instanceof ShareVisitLog));
     }
 }

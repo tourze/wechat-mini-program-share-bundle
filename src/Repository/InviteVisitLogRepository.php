@@ -4,16 +4,13 @@ namespace WechatMiniProgramShareBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
 
 /**
  * @extends ServiceEntityRepository<InviteVisitLog>
- *
- * @method InviteVisitLog|null find($id, $lockMode = null, $lockVersion = null)
- * @method InviteVisitLog|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
- * @method InviteVisitLog[]    findAll()
- * @method InviteVisitLog[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
  */
+#[AsRepository(entityClass: InviteVisitLog::class)]
 class InviteVisitLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,18 +18,41 @@ class InviteVisitLogRepository extends ServiceEntityRepository
         parent::__construct($registry, InviteVisitLog::class);
     }
 
-    /**
-     * @return InviteVisitLog[]
-     */
-    public function findByValidTrue(): array
+    public function save(InviteVisitLog $entity, bool $flush = true): void
     {
-        /** @var InviteVisitLog[] $result */
-        $result = $this->createQueryBuilder('i')
-            ->andWhere('i.valid = :valid')
-            ->setParameter('valid', true)
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(InviteVisitLog $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    /**
+     * @return list<InviteVisitLog>
+     */
+    public function findByNewUserTrue(): array
+    {
+        $queryResult = $this->createQueryBuilder('i')
+            ->andWhere('i.newUser = :newUser')
+            ->setParameter('newUser', true)
             ->getQuery()
-            ->getResult();
-        
-        return $result;
+            ->getResult()
+        ;
+
+        if (!is_array($queryResult)) {
+            return [];
+        }
+
+        /** @var list<InviteVisitLog> */
+        return array_values(array_filter($queryResult, static fn ($item): bool => $item instanceof InviteVisitLog));
     }
 }
