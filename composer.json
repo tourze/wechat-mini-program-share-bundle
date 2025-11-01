@@ -36,7 +36,7 @@
     "tourze/doctrine-snowflake-bundle": "1.0.*",
     "tourze/doctrine-timestamp-bundle": "1.0.*",
     "tourze/doctrine-user-bundle": "1.0.*",
-    "tourze/json-rpc-cache-bundle": "0.1.*",
+    "tourze/json-rpc-cache-bundle": "1.0.*",
     "tourze/json-rpc-core": "1.0.*",
     "tourze/symfony-dependency-service-loader": "1.*",
     "tourze/wechat-mini-program-appid-contracts": "0.0.*",
