@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace WechatMiniProgramShareBundle\Tests;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramBundle\Service\Client;
@@ -14,7 +13,6 @@ use WechatMiniProgramBundle\Service\Client;
  *
  * @internal
  */
-#[CoversClass(TestCase::class)]
 abstract class AbstractWechatMiniProgramShareTest extends TestCase
 {
     protected function createAccountMock(): Account
