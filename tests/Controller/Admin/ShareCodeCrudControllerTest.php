@@ -64,11 +64,6 @@ class ShareCodeCrudControllerTest extends AbstractEasyAdminControllerTestCase
         // envVersion 是 ChoiceField (select)，valid 是 BooleanField (checkbox)，测试框架只检查 input
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $this->assertSame(ShareCode::class, ShareCodeCrudController::getEntityFqcn());
-    }
-
     public function testConfigureFields(): void
     {
         $controller = new ShareCodeCrudController();

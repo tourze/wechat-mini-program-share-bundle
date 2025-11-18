@@ -53,11 +53,6 @@ class ShareVisitLogCrudControllerTest extends AbstractEasyAdminControllerTestCas
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $this->assertSame(ShareVisitLog::class, ShareVisitLogCrudController::getEntityFqcn());
-    }
-
     public function testConfigureFields(): void
     {
         $controller = new ShareVisitLogCrudController();

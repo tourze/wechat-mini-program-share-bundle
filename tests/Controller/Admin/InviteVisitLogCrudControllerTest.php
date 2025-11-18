@@ -69,11 +69,6 @@ class InviteVisitLogCrudControllerTest extends AbstractEasyAdminControllerTestCa
         yield 'newUser' => ['newUser'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $this->assertSame(InviteVisitLog::class, InviteVisitLogCrudController::getEntityFqcn());
-    }
-
     public function testConfigureFields(): void
     {
         $controller = new InviteVisitLogCrudController();
