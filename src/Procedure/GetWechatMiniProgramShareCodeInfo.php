@@ -8,12 +8,13 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService as DoctrineService;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPC\Core\Exception\ApiException;
 use Tourze\JsonRPC\Core\Procedure\BaseProcedure;
-use WechatMiniProgramBundle\Procedure\LaunchOptionsAware;
 use WechatMiniProgramShareBundle\Entity\ShareVisitLog;
+use WechatMiniProgramShareBundle\Param\GetWechatMiniProgramShareCodeInfoParam;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 
 #[MethodTag(name: '微信小程序')]
@@ -22,11 +23,6 @@ use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 #[WithMonologChannel(channel: 'procedure')]
 class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
 {
-    use LaunchOptionsAware;
-
-    #[MethodParam(description: '分享码ID')]
-    public string $id;
-
     public function __construct(
         private readonly ShareCodeRepository $codeRepository,
         private readonly DoctrineService $doctrineService,
@@ -36,11 +32,11 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
     }
 
     /**
-     * @return array<string, mixed>
+     * @phpstan-param GetWechatMiniProgramShareCodeInfoParam $param
      */
-    public function execute(): array
+    public function execute(GetWechatMiniProgramShareCodeInfoParam|RpcParamInterface $param): ArrayResult
     {
-        $code = $this->codeRepository->find($this->id);
+        $code = $this->codeRepository->find($param->id);
         if (null === $code) {
             throw new ApiException('找不到分享码');
         }
@@ -52,8 +48,8 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
         $log = new ShareVisitLog();
         $log->setCode($code);
         $log->setEnvVersion($code->getEnvVersion());
-        $log->setLaunchOptions($this->launchOptions);
-        $log->setEnterOptions($this->enterOptions);
+        $log->setLaunchOptions($param->launchOptions);
+        $log->setEnterOptions($param->enterOptions);
         if (null !== $this->security->getUser()) {
             $log->setUser($this->security->getUser());
         }
@@ -79,6 +75,6 @@ class GetWechatMiniProgramShareCodeInfo extends BaseProcedure
             ]);
         }
 
-        return $log->getResponse();
+        return new ArrayResult($log->getResponse());
     }
 }

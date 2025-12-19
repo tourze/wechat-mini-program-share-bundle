@@ -5,7 +5,7 @@ namespace WechatMiniProgramShareBundle\Tests\Procedure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\JsonRPC\Core\Exception\ApiException;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
 use WechatMiniProgramShareBundle\Procedure\GetWechatMiniProgramShareCodeInfo;
 use WechatMiniProgramShareBundle\Repository\ShareCodeRepository;
 
@@ -41,12 +41,15 @@ final class GetWechatMiniProgramShareCodeInfoTest extends AbstractProcedureTestC
     public function testExecuteWithInvalidId(): void
     {
         $procedure = self::getService(GetWechatMiniProgramShareCodeInfo::class);
-        $procedure->id = '999999';
-        $procedure->setLaunchOptions([]);
-        $procedure->setEnterOptions([]);
+
+        // 创建参数对象
+        $param = new \WechatMiniProgramShareBundle\Param\GetWechatMiniProgramShareCodeInfoParam();
+        $param->id = '999999';
+        $param->launchOptions = [];
+        $param->enterOptions = [];
 
         try {
-            $procedure->execute();
+            $procedure->execute($param);
             self::fail('Should throw an exception');
         } catch (\Exception $e) {
             // 在集成测试中，可能抛出数据库异常或API异常

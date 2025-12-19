@@ -26,7 +26,7 @@ use Yiisoft\Arrays\ArrayHelper;
  * 邀请和受邀的信息记录
  */
 #[WithMonologChannel(channel: 'wechat_mini_program_share')]
-readonly class InviteVisitSubscriber
+readonly final class InviteVisitSubscriber
 {
     public function __construct(
         private DoctrineService $doctrineService,

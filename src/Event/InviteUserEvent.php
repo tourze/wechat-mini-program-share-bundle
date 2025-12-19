@@ -5,7 +5,7 @@ namespace WechatMiniProgramShareBundle\Event;
 use Symfony\Contracts\EventDispatcher\Event;
 use WechatMiniProgramShareBundle\Entity\InviteVisitLog;
 
-class InviteUserEvent extends Event
+final class InviteUserEvent extends Event
 {
     private InviteVisitLog $inviteVisitLog;
 

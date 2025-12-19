@@ -8,10 +8,12 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPC\Core\Model\JsonRpcRequest;
 use Tourze\JsonRPCCacheBundle\Procedure\CacheableProcedure;
+use WechatMiniProgramShareBundle\Param\GetWechatMiniProgramPageShareConfigParam;
 use WechatMiniProgramShareBundle\WechatMiniProgramShareBundle;
 
 #[MethodTag(name: '微信小程序')]
@@ -19,21 +21,6 @@ use WechatMiniProgramShareBundle\WechatMiniProgramShareBundle;
 #[MethodExpose(method: 'GetWechatMiniProgramPageShareConfig')]
 class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
 {
-    #[MethodParam(description: '当前页面路径')]
-    public string $path;
-
-    /**
-     * @var array<string, mixed>
-     */
-    #[MethodParam(description: '当前页面参数')]
-    public array $params = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    #[MethodParam(description: '记录的是默认的分享配置')]
-    public array $config = [];
-
     public function __construct(
         #[Autowire(service: 'wechat-mini-program-share.hashids')] private readonly Hashids $hashids,
         private readonly Security $security,
@@ -41,18 +28,18 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
     }
 
     /**
-     * @return array<string, mixed>
+     * @phpstan-param GetWechatMiniProgramPageShareConfigParam $param
      */
-    public function execute(): array
+    public function execute(GetWechatMiniProgramPageShareConfigParam|RpcParamInterface $param): ArrayResult
     {
-        if (!isset($this->config['path'])) {
-            return [];
+        if (!isset($param->config['path'])) {
+            return new ArrayResult([]);
         }
 
         $user = $this->security->getUser();
 
         // 这里拿到的是前端的默认分享配置
-        $config = $this->config;
+        $config = $param->config;
 
         $path = $config['path'];
 
@@ -74,7 +61,7 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
             $config['path'] = $path;
         }
 
-        return $config;
+        return new ArrayResult($config);
     }
 
     public function getCacheKey(JsonRpcRequest $request): string
@@ -102,6 +89,6 @@ class GetWechatMiniProgramPageShareConfig extends CacheableProcedure
      */
     public function getCacheTags(JsonRpcRequest $request): iterable
     {
-        return [];
+        return new ArrayResult([]);
     }
 }

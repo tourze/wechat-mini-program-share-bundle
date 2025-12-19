@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\JsonRPC\Core\Model\JsonRpcParams;
 use Tourze\JsonRPC\Core\Model\JsonRpcRequest;
-use Tourze\JsonRPC\Core\Tests\AbstractProcedureTestCase;
+use Tourze\PHPUnitJsonRPC\AbstractProcedureTestCase;
 use WechatMiniProgramShareBundle\Procedure\GetWechatMiniProgramPageShareConfig;
 
 /**
@@ -55,17 +55,21 @@ final class GetWechatMiniProgramPageShareConfigTest extends AbstractProcedureTes
     {
         $procedure = self::getService(GetWechatMiniProgramPageShareConfig::class);
 
-        // 设置必需的config参数来避免空结果
-        $procedure->config = [
+        // 创建参数对象
+        $param = new \WechatMiniProgramShareBundle\Param\GetWechatMiniProgramPageShareConfigParam();
+        $param->path = '/pages/index/index';
+        $param->params = [];
+        $param->config = [
             'path' => '/pages/index/index',
             'title' => 'Test Share Config',
         ];
 
-        $result = $procedure->execute();
+        $result = $procedure->execute($param);
 
         // 验证返回结果的基本结构
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('path', $result);
-        $this->assertArrayHasKey('title', $result);
+        $this->assertInstanceOf(\Tourze\JsonRPC\Core\Result\ArrayResult::class, $result);
+        $this->assertIsArray($result->data);
+        $this->assertArrayHasKey('path', $result->data);
+        $this->assertArrayHasKey('title', $result->data);
     }
 }

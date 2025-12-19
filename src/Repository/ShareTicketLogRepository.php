@@ -11,7 +11,7 @@ use WechatMiniProgramShareBundle\Entity\ShareTicketLog;
  * @extends ServiceEntityRepository<ShareTicketLog>
  */
 #[AsRepository(entityClass: ShareTicketLog::class)]
-class ShareTicketLogRepository extends ServiceEntityRepository
+final class ShareTicketLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

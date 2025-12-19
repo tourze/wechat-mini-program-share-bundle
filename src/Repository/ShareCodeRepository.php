@@ -11,7 +11,7 @@ use WechatMiniProgramShareBundle\Entity\ShareCode;
  * @extends ServiceEntityRepository<ShareCode>
  */
 #[AsRepository(entityClass: ShareCode::class)]
-class ShareCodeRepository extends ServiceEntityRepository
+final class ShareCodeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
